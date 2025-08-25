@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "814749553313",
+    "project_id": "prjkt-boring",
+    "storage_bucket": "prjkt-boring.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814749553313:android:1fca9b3b8c6520b5ced6e0",
+        "android_client_info": {
+          "package_name": "com.example.messager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA31gXLHfMUPcOjIkdLWAutNgHYGdQnJ0Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
