@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'screens/home_screen.dart';
+import 'screens/new_chat_screen.dart';
+import 'screens/qr_code_screen.dart';
+import 'screens/qr_scanner_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +43,9 @@ class MyApp extends StatelessWidget {
       home: const HomeScreen(),
       routes: {
         '/settings': (context) => const Placeholder(), // To be implemented
-        '/new_chat': (context) => const Placeholder(), // To be implemented
+        '/new_chat': (context) => const NewChatScreen(),
+        '/qr_code': (context) => const QRCodeScreen(),
+        '/qr_scanner': (context) => const QRScannerScreen(),
       },
     );
   }
