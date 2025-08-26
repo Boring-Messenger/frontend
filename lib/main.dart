@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'firebase_options.dart';
 import 'screens/home_screen.dart';
@@ -44,7 +43,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final bool startOnProfileSetup;
-  const MyApp({super.key, required this.startOnProfileSetup});
+  const MyApp({super.key, this.startOnProfileSetup = false});
 
   // This widget is the root of your application.
   @override
