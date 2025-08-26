@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import '../models/chat_message.dart';
 import '../services/chat_service.dart';
 import '../services/profile_service.dart';
+import '../models/chat_room.dart';
+import '../models/contact.dart';
+import 'package:sqflite/sqflite.dart';
+import '../services/local_db_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final String roomId;
@@ -16,18 +20,35 @@ class _ChatScreenState extends State<ChatScreen> {
   final _msgCtrl = TextEditingController();
   late final Stream<List<ChatMessage>> _stream;
   String _userId = '';
+  String? _title;
 
   @override
   void initState() {
     super.initState();
     _stream = ChatService().messageStream(widget.roomId);
     ProfileService().getOrCreateUserId().then((id) => setState(() => _userId = id));
+  _loadTitle();
   }
 
   @override
   void dispose() {
     _msgCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadTitle() async {
+    final db = await LocalDbService().database;
+    final rooms = await db.query('chat_rooms', where: 'room_id = ?', whereArgs: [widget.roomId], limit: 1);
+    if (rooms.isNotEmpty) {
+      final chatRoom = ChatRoom.fromMap(rooms.first);
+      if (chatRoom.contactId != null) {
+        final contact = await ChatService().getContact(chatRoom.contactId!);
+        if (!mounted) return;
+        setState(() => _title = contact?.username ?? chatRoom.contactId);
+        return;
+      }
+    }
+    if (mounted) setState(() => _title = 'Room ${widget.roomId}');
   }
 
   Future<void> _send() async {
@@ -45,7 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Room ${widget.roomId}')),
+  appBar: AppBar(title: Text(_title ?? '...')),
       body: Column(
         children: [
           Expanded(

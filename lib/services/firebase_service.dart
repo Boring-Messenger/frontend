@@ -25,6 +25,44 @@ class FirebaseService {
     await _db.child('chat_rooms/$roomId/participants/$userId').set(profile);
   }
 
+  // Transactionally create or get a room for a pair key; returns the roomId
+  Future<String> createOrGetRoomByPairKey(String pairKey, Map<String, dynamic> myProfile) async {
+    final pairRef = _db.child('pair_index/$pairKey');
+    String? roomId;
+    await pairRef.runTransaction((current) {
+      if (current is String && current.isNotEmpty) {
+        roomId = current;
+        return Transaction.success(current);
+      }
+      // create a new deterministic roomId from pairKey
+      final id = pairKey.replaceAll(':', '_');
+      roomId = id;
+      return Transaction.success(id);
+    });
+    final id = roomId!;
+    // Ensure room exists and participant registered
+    await _db.child('chat_rooms/$id').update({
+      'last_updated': ServerValue.timestamp,
+    });
+    // Caller must then set participants
+    return id;
+  }
+
+  Future<void> setParticipant(String roomId, String userId, Map<String, dynamic> profile) async {
+    await _db.child('chat_rooms/$roomId/participants/$userId').update(profile);
+  }
+
+  Future<void> leaveRoom(String roomId, String userId) async {
+    await _db.child('chat_rooms/$roomId/participants/$userId').update({
+      'active': false,
+      'leftAt': ServerValue.timestamp,
+    });
+  }
+
+  Future<void> deleteRoom(String roomId) async {
+    await _db.child('chat_rooms/$roomId').remove();
+  }
+
   // Send a message to a chat room
   Future<void> sendMessage(String roomId, Map<String, dynamic> message) async {
     await _db.child('chat_rooms/$roomId/messages').push().set(message);

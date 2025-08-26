@@ -14,12 +14,16 @@ class NewChatScreen extends StatefulWidget {
 
 class _NewChatScreenState extends State<NewChatScreen> {
   final _roomCtrl = TextEditingController();
+  final _otherIdCtrl = TextEditingController();
+  final _otherNameCtrl = TextEditingController();
   final _uuid = const Uuid();
   bool _busy = false;
 
   @override
   void dispose() {
-    _roomCtrl.dispose();
+  _roomCtrl.dispose();
+  _otherIdCtrl.dispose();
+  _otherNameCtrl.dispose();
     super.dispose();
   }
 
@@ -44,8 +48,32 @@ class _NewChatScreenState extends State<NewChatScreen> {
   }
 
   Future<void> _create() async {
-    final roomId = _uuid.v4().substring(0, 8); // short code
-    await _join(roomId);
+    // Temporary: unique chat by userIds
+    final otherId = _otherIdCtrl.text.trim();
+    final otherName = _otherNameCtrl.text.trim().isEmpty ? 'User' : _otherNameCtrl.text.trim();
+    if (otherId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter other user ID')));
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      final myId = await ProfileService().getOrCreateUserId();
+      final myProfile = await ProfileService().loadLocalProfile();
+      final myName = myProfile?.username ?? 'Me';
+      final roomId = await ChatService().createOrGetRoomByUserId(
+        myUserId: myId,
+        myUsername: myName,
+        otherUserId: otherId,
+        otherUsername: otherName,
+      );
+      if (!mounted) return;
+      Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(roomId: roomId)));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to create/get room')));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
@@ -109,6 +137,24 @@ class _NewChatScreenState extends State<NewChatScreen> {
               controller: _roomCtrl,
               decoration: const InputDecoration(
                 labelText: 'Room ID',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text('Unique chat by userId (pre-QR)', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _otherIdCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Other user ID',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _otherNameCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Other user name (optional)',
                 border: OutlineInputBorder(),
               ),
             ),

@@ -20,7 +20,7 @@ class LocalDbService {
     final dbPath = p.join(dir.path, 'app.db');
     return openDatabase(
       dbPath,
-      version: 2,
+  version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -35,13 +35,13 @@ class LocalDbService {
         profile_picture TEXT
       );
     ''');
-    await _createChatTables(db);
+  await _createChatTables(db);
+  await _createContacts(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      await _createChatTables(db);
-    }
+  if (oldVersion < 2) await _createChatTables(db);
+  if (oldVersion < 3) await _createContacts(db);
   }
 
   Future<void> _createChatTables(Database db) async {
@@ -54,6 +54,7 @@ class LocalDbService {
         last_updated INTEGER
       );
     ''');
+    await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS ux_chat_rooms_contact ON chat_rooms(contact_id);');
     await db.execute('''
       CREATE TABLE IF NOT EXISTS messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,5 +66,16 @@ class LocalDbService {
       );
     ''');
     await db.execute('CREATE INDEX IF NOT EXISTS idx_messages_room_ts ON messages(room_id, timestamp);');
+  }
+
+  Future<void> _createContacts(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS contacts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contact_id TEXT NOT NULL UNIQUE,
+        username TEXT,
+        profile_picture TEXT
+      );
+    ''');
   }
 }
