@@ -16,11 +16,21 @@ class NewChatScreen extends StatelessWidget {
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Center(
-              child: Text(
-                'New Chat',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      'New Chat',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
