@@ -5,7 +5,7 @@ import 'chat_screen.dart';
 import '../services/profile_service.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -45,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Future<void> _deleteRoom(ChatRoom r) async {
     final myUserId = await ProfileService().getOrCreateUserId();
+    if (!mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -100,9 +101,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         key: ValueKey(r.roomId),
                         direction: DismissDirection.endToStart,
                         background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
+                          alignment: Alignment.centerRight,
+                          color: Colors.red,
                           child: const Icon(Icons.delete, color: Colors.white),
                         ),
                         confirmDismiss: (_) async {
@@ -129,8 +130,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           if (!mounted) return;
           _load();
         },
-        child: const Icon(Icons.add),
         tooltip: 'Start New Chat',
+        child: const Icon(Icons.add),
       ),
     );
   }

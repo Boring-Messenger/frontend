@@ -1,80 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
-
-import '../services/chat_service.dart';
-import '../services/profile_service.dart';
-import 'chat_screen.dart';
+// QR-only flow; no direct service usage here
 
 class NewChatScreen extends StatefulWidget {
-  const NewChatScreen({Key? key}) : super(key: key);
+  const NewChatScreen({super.key});
 
   @override
   State<NewChatScreen> createState() => _NewChatScreenState();
 }
 
 class _NewChatScreenState extends State<NewChatScreen> {
-  final _roomCtrl = TextEditingController();
-  final _otherIdCtrl = TextEditingController();
-  final _otherNameCtrl = TextEditingController();
-  final _uuid = const Uuid();
-  bool _busy = false;
 
-  @override
-  void dispose() {
-  _roomCtrl.dispose();
-  _otherIdCtrl.dispose();
-  _otherNameCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _join(String roomId) async {
-    if (roomId.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter a room ID')));
-      return;
-    }
-    setState(() => _busy = true);
-    try {
-      final profile = await ProfileService().loadLocalProfile();
-      final userId = await ProfileService().getOrCreateUserId();
-      final username = profile?.username ?? 'User';
-      await ChatService().createOrJoinRoom(roomId: roomId.trim(), userId: userId, username: username);
-      if (!mounted) return;
-      Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(roomId: roomId.trim())));
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to join room')));
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _create() async {
-    // Temporary: unique chat by userIds
-    final otherId = _otherIdCtrl.text.trim();
-    final otherName = _otherNameCtrl.text.trim().isEmpty ? 'User' : _otherNameCtrl.text.trim();
-    if (otherId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter other user ID')));
-      return;
-    }
-    setState(() => _busy = true);
-    try {
-      final myId = await ProfileService().getOrCreateUserId();
-      final myProfile = await ProfileService().loadLocalProfile();
-      final myName = myProfile?.username ?? 'Me';
-      final roomId = await ChatService().createOrGetRoomByUserId(
-        myUserId: myId,
-        myUsername: myName,
-        otherUserId: otherId,
-        otherUsername: otherName,
-      );
-      if (!mounted) return;
-      Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(roomId: roomId)));
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to create/get room')));
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
+  // Manual flows removed; QR is now the only new-chat option
 
   @override
   Widget build(BuildContext context) {
@@ -131,53 +67,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 12),
-            Text('Manual join (for testing now)', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _roomCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Room ID',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text('Unique chat by userId (pre-QR)', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _otherIdCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Other user ID',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _otherNameCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Other user name (optional)',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _busy ? null : _create,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Create Room'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _busy ? null : () => _join(_roomCtrl.text),
-                    icon: const Icon(Icons.login),
-                    label: const Text('Join Room'),
-                  ),
-                ),
-              ],
-            ),
+            Text('Use QR to connect', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
       ),

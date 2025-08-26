@@ -4,8 +4,6 @@ import '../models/chat_message.dart';
 import '../services/chat_service.dart';
 import '../services/profile_service.dart';
 import '../models/chat_room.dart';
-import '../models/contact.dart';
-import 'package:sqflite/sqflite.dart';
 import '../services/local_db_service.dart';
 
 class ChatScreen extends StatefulWidget {
