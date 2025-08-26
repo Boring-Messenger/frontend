@@ -1,7 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 
 class FirebaseService {
-  final DatabaseReference _db = FirebaseDatabase.instance.ref();
+  DatabaseReference get _db => FirebaseDatabase.instance.ref();
 
   // Create or update a user profile
   Future<void> setUserProfile(String userId, Map<String, dynamic> profile) async {
@@ -14,8 +14,8 @@ class FirebaseService {
   }
 
   // Create or join a chat room
-  Future<void> createOrJoinChatRoom(String roomId, Map<String, dynamic> userProfile) async {
-    await _db.child('chat_rooms/$roomId/participants').update(userProfile);
+  Future<void> createOrJoinChatRoom(String roomId, String userId, Map<String, dynamic> profile) async {
+    await _db.child('chat_rooms/$roomId/participants/$userId').set(profile);
   }
 
   // Send a message to a chat room

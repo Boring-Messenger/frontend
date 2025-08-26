@@ -47,6 +47,7 @@ class DefaultFirebaseOptions {
     projectId: 'prjkt-boring',
     authDomain: 'prjkt-boring.firebaseapp.com',
     storageBucket: 'prjkt-boring.firebasestorage.app',
+  databaseURL: 'https://prjkt-boring-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -55,6 +56,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '814749553313',
     projectId: 'prjkt-boring',
     storageBucket: 'prjkt-boring.firebasestorage.app',
+  databaseURL: 'https://prjkt-boring-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -64,6 +66,7 @@ class DefaultFirebaseOptions {
     projectId: 'prjkt-boring',
     storageBucket: 'prjkt-boring.firebasestorage.app',
     iosBundleId: 'com.example.messager',
+  databaseURL: 'https://prjkt-boring-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,6 +76,7 @@ class DefaultFirebaseOptions {
     projectId: 'prjkt-boring',
     storageBucket: 'prjkt-boring.firebasestorage.app',
     iosBundleId: 'com.example.messager',
+  databaseURL: 'https://prjkt-boring-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -82,6 +86,7 @@ class DefaultFirebaseOptions {
     projectId: 'prjkt-boring',
     authDomain: 'prjkt-boring.firebaseapp.com',
     storageBucket: 'prjkt-boring.firebasestorage.app',
+  databaseURL: 'https://prjkt-boring-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
 }
