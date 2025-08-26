@@ -81,6 +81,7 @@ This structure supports local profile, contacts, chat rooms, and messages for th
 
 ## Root Structure (JSON)
 
+```
 chat_rooms: {
   [room_id]: {
     participants: {
@@ -111,6 +112,7 @@ users: {
   },
   ...
 }
+```
 
 ## Notes
 - `chat_rooms` contains all chat sessions, each with participants and messages.
@@ -121,6 +123,7 @@ users: {
 
 ## Suggested File Structure
 
+```
 lib/
   main.dart
   firebase_options.dart
@@ -149,6 +152,7 @@ lib/
   utils/
     validators.dart
     constants.dart
+```
 
 ## Future Tasks (for AI agents)
 - Implement Home, QR Code, and Chat screens
