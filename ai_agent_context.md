@@ -45,6 +45,80 @@
 - Other user sees your profile in chat header or message bubbles
 - UI: Show own profile on home screen or drawer; show other user’s profile in chat
 
+
+# Proposed SQLite Database Structure
+
+## Tables
+
+1. user_profile
+  - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+  - username (TEXT)
+  - profile_picture (TEXT)  # Path or base64 string
+
+2. contacts
+  - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+  - username (TEXT)
+  - profile_picture (TEXT)
+  - contact_id (TEXT)  # Unique identifier from QR
+
+3. chat_rooms
+  - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+  - room_id (TEXT)  # Unique chat room identifier
+  - contact_id (TEXT)  # Foreign key to contacts
+  - last_message (TEXT)
+  - last_updated (INTEGER)  # Timestamp
+
+4. messages
+  - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+  - room_id (TEXT)  # Foreign key to chat_rooms
+  - sender_id (TEXT)  # Could be 'self' or contact_id
+  - content (TEXT)
+  - timestamp (INTEGER)
+
+This structure supports local profile, contacts, chat rooms, and messages for the minimum working version.
+
+# Proposed Firebase Realtime Database Structure
+
+## Root Structure (JSON)
+
+chat_rooms: {
+  [room_id]: {
+    participants: {
+      [user_id]: {
+        username: string,
+        profile_picture: string  // URL or base64
+      },
+      ...
+    },
+    messages: {
+      [message_id]: {
+        sender_id: string,
+        content: string,
+        timestamp: integer
+      },
+      ...
+    },
+    last_message: string,
+    last_updated: integer  // Timestamp
+  },
+  ...
+}
+
+users: {
+  [user_id]: {
+    username: string,
+    profile_picture: string  // URL or base64
+  },
+  ...
+}
+
+## Notes
+- `chat_rooms` contains all chat sessions, each with participants and messages.
+- `participants` holds minimal profile info for each user in the room.
+- `messages` is a map of message objects for the room.
+- `users` is a global directory of user profiles (optional for minimum version, but useful for future features).
+- Only shared data (chat rooms, messages, and minimal profile info) is stored in Firebase.
+
 ## Suggested File Structure
 
 lib/
