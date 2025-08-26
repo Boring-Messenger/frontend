@@ -1,7 +1,14 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class FirebaseService {
-  DatabaseReference get _db => FirebaseDatabase.instance.ref();
+  static const String _dbUrl =
+    'https://prjkt-boring-default-rtdb.asia-southeast1.firebasedatabase.app';
+
+  FirebaseDatabase get _database =>
+    FirebaseDatabase.instanceFor(app: Firebase.app(), databaseURL: _dbUrl);
+
+  DatabaseReference get _db => _database.ref();
 
   // Create or update a user profile
   Future<void> setUserProfile(String userId, Map<String, dynamic> profile) async {
