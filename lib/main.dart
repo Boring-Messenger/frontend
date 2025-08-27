@@ -49,27 +49,116 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-  return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-  // Use Hepta Slab as the default app font via Google Fonts
-  textTheme: GoogleFonts.heptaSlabTextTheme(),
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    final darkBg = const Color(0xFF0A0F1A); // very blackish dark blue
+    final darkCard = const Color(0xFF0E1624);
+    final primary = const Color(0xFF90CAF9); // light blue accent
+    final secondary = const Color(0xFF64B5F6);
+    final scheme = ColorScheme.dark(
+      primary: primary,
+      secondary: secondary,
+      background: darkBg,
+      surface: darkCard,
+      onPrimary: Colors.black,
+      onSecondary: Colors.black,
+      onBackground: Colors.white,
+      onSurface: Colors.white,
+    );
+
+    final radius32 = BorderRadius.circular(32);
+    final shape32 = RoundedRectangleBorder(borderRadius: radius32);
+
+    return MaterialApp(
+      title: 'Messager',
+      themeMode: ThemeMode.dark,
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: scheme,
+        scaffoldBackgroundColor: darkBg,
+        textTheme: GoogleFonts.heptaSlabTextTheme(ThemeData.dark().textTheme),
+        appBarTheme: AppBarTheme(
+          backgroundColor: darkCard,
+          foregroundColor: scheme.onSurface,
+          elevation: 0,
+          centerTitle: true,
+        ),
+  cardTheme: CardThemeData(
+          color: darkCard,
+          elevation: 0,
+          shape: shape32,
+          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+        ),
+  dialogTheme: DialogThemeData(
+          backgroundColor: darkCard,
+          shape: shape32,
+        ),
+        bottomSheetTheme: BottomSheetThemeData(
+          backgroundColor: darkCard,
+          shape: shape32,
+        ),
+        listTileTheme: ListTileThemeData(
+          shape: shape32,
+          iconColor: scheme.onSurface,
+          textColor: scheme.onSurface,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: darkBg,
+          border: OutlineInputBorder(borderRadius: radius32),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: radius32,
+            borderSide: BorderSide(color: scheme.outline.withOpacity(0.4)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: radius32,
+            borderSide: BorderSide(color: primary, width: 1.4),
+          ),
+          labelStyle: TextStyle(color: scheme.onSurface.withOpacity(0.8)),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            shape: shape32,
+            backgroundColor: primary,
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            shape: shape32,
+            backgroundColor: primary,
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            shape: shape32,
+            side: BorderSide(color: primary),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            foregroundColor: primary,
+            textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            shape: shape32,
+            foregroundColor: primary,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          ),
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: primary,
+          foregroundColor: Colors.black,
+        ),
+        snackBarTheme: SnackBarThemeData(
+          backgroundColor: darkCard,
+          contentTextStyle: TextStyle(color: scheme.onSurface),
+          behavior: SnackBarBehavior.floating,
+          shape: shape32,
+        ),
+        dividerTheme: DividerThemeData(color: scheme.outline.withOpacity(0.2)),
       ),
       home: startOnProfileSetup ? const ProfileSetupScreen() : const HomeScreen(),
       routes: {

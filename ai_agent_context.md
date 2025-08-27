@@ -162,3 +162,33 @@ lib/
 - Add simple profile creation/editing and local storage
 - Sync profile info to chat room and display in UI
 - Ensure all features work for Android target
+
+## Theme (Design System)
+
+This app uses a simple, consistent dark theme. Keep UI-only changes within these constraints; do not alter underlying logic.
+
+- Mode: Dark only (ThemeMode.dark)
+- Palette:
+  - Background: very blackish dark blue `#0A0F1A`
+  - Surface/Card: slightly lighter dark blue `#0E1624`
+  - Primary accent: light blue `#90CAF9`
+  - Secondary accent: light blue `#64B5F6`
+- Typography: Hepta Slab (global app font)
+- Shape: All rounded corners are 32 px radius for cards, dialogs, buttons, inputs, lists
+- Components:
+  - AppBar: centered title, surface color, no elevation
+  - Cards/List tiles: use Card with 32 px radius; subtle dividers
+  - Buttons: Filled/Elevated/Outlined/Text use 32 px radius and accent colors
+  - Inputs: OutlineInputBorder with 32 px radius; filled on dark background
+  - FAB: primary accent background with dark text/icon
+- Accessibility: Prefer high-contrast text (onSurface/onBackground are light on dark)
+
+Recent UI updates applied:
+- Home screen
+  - Added empty state with icon and CTA
+  - Switched to Card-based chat items with chevron and initial avatar
+  - Swipe-to-delete uses theme error color background
+  - AppBar title centered; typography is from global font
+- Global
+  - Dark palette and 32 px radii applied via ThemeData
+  - Hepta Slab wired as default text theme

@@ -95,65 +95,136 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chats'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.pushNamed(context, '/settings');
-            },
+  title: const Align(
+    alignment: Alignment.centerLeft,
+    child: Text('Boring Messenger'),
+  ),
+  actions: [
+    IconButton(
+      icon: const Icon(Icons.settings),
+      onPressed: () {
+    Navigator.pushNamed(context, '/settings');
+      },
+    ),
+  ],
+    ),
+    body: _loading
+    ? const Center(child: CircularProgressIndicator())
+    : (_rooms.isEmpty
+    ? _buildEmptyState(context)
+    : RefreshIndicator(
+        onRefresh: _resyncAndLoad,
+        child: ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      itemCount: _rooms.length,
+      itemBuilder: (context, index) {
+        final r = _rooms[index];
+        return FutureBuilder(
+          future: r.contactId != null
+          ? ChatService().getContact(r.contactId!)
+          : Future.value(null),
+          builder: (context, snapshot) {
+        final contact = snapshot.data;
+        final title = contact?.username ?? (r.contactId ?? 'Room ${r.roomId}');
+        return Dismissible(
+          key: ValueKey(r.roomId),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            alignment: Alignment.centerRight,
+            color: Theme.of(context).colorScheme.error,
+            child: const Icon(Icons.delete, color: Colors.white),
           ),
-        ],
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _resyncAndLoad,
-              child: ListView.builder(
-                itemCount: _rooms.length,
-                itemBuilder: (context, index) {
-                  final r = _rooms[index];
-                  return FutureBuilder(
-                    future: r.contactId != null ? ChatService().getContact(r.contactId!) : Future.value(null),
-                    builder: (context, snapshot) {
-                      final contact = snapshot.data;
-                      final title = contact?.username ?? (r.contactId ?? 'Room ${r.roomId}');
-                      return Dismissible(
-                        key: ValueKey(r.roomId),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          alignment: Alignment.centerRight,
-                          color: Colors.red,
-                          child: const Icon(Icons.delete, color: Colors.white),
-                        ),
-                        confirmDismiss: (_) async {
-                          await _deleteRoom(r);
-                          return false; // handled manually
-                        },
-                        child: ListTile(
-                          title: Text(title),
-                          subtitle: Text(r.lastMessage ?? 'No messages yet'),
-                          leading: const CircleAvatar(child: Icon(Icons.forum)),
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(roomId: r.roomId)));
-                          },
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
+          confirmDismiss: (_) async {
+            await _deleteRoom(r);
+            return false; // handled manually
+          },
+          child: Card(
+            elevation: 0,
+            // Use themed 32px radius; border comes from theme divider
+            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+            child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          leading: _Avatar(title: title),
+          title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: Text(
+            r.lastMessage ?? 'No messages yet',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ChatScreen(roomId: r.roomId)),
+            );
+          },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.pushNamed(context, '/new_chat');
-          if (!mounted) return;
-          _resyncAndLoad();
-        },
-        tooltip: 'Start New Chat',
-        child: const Icon(Icons.add),
+          ),
+        );
+          },
+        );
+      },
+        ),
+      )),
+    floatingActionButton: FloatingActionButton(
+  onPressed: () async {
+    await Navigator.pushNamed(context, '/new_chat');
+    if (!mounted) return;
+    _resyncAndLoad();
+  },
+  tooltip: 'Start New Chat',
+  child: const Icon(Icons.add),
+    ),
+  );
+
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.forum_outlined, size: 72, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(height: 12),
+            const Text('No conversations yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 6),
+            Text(
+              'Start a new chat by scanning or sharing a QR code.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Theme.of(context).textTheme.bodySmall?.color),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: () async {
+                await Navigator.pushNamed(context, '/new_chat');
+                if (!mounted) return;
+                _resyncAndLoad();
+              },
+              icon: const Icon(Icons.qr_code),
+              label: const Text('New chat'),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+}
+
+class _Avatar extends StatelessWidget {
+  final String title;
+  const _Avatar({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+  final t = title.trim();
+  final char = t.isNotEmpty ? t.substring(0, 1).toUpperCase() : '?';
+    return CircleAvatar(
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+      child: Text(char),
     );
   }
 }

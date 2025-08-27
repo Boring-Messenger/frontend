@@ -45,7 +45,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+  return Scaffold(
       appBar: AppBar(title: const Text('Profile Setup')),
       body: Padding(
         padding: const EdgeInsets.all(16),
