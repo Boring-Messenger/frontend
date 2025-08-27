@@ -69,25 +69,52 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Your QR Code')),
-      body: Center(
+      appBar: AppBar(
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text('Your QR Code'),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_payload == null)
-              const SizedBox(
-                width: 200,
-                height: 200,
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else
-              QrImageView(data: _payload!, size: 220),
+            const Text(
+              'Show QR to friend',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Show this QR to friend and once done return to home and wait for your friend to initiate the chat',
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Center(
+              child: _payload == null
+                  ? const SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(32),
+                      ),
+                      child: QrImageView(data: _payload!, size: 220),
+                    ),
+            ),
             const SizedBox(height: 16),
             if (_payload != null)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton.icon(
+                  FilledButton.icon(
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: _payload!));
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('QR payload copied')));

@@ -59,19 +59,53 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan QR Code')),
-      body: Column(
-        children: [
-          Expanded(
-            child: MobileScanner(
-              onDetect: _onDetect,
+      appBar: AppBar(
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text('Scan QR Code'),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              "Scan friend's QR code",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(12.0),
-            child: Text('Point your camera at a QR code'),
-          ),
-        ],
+            const SizedBox(height: 6),
+            Text(
+              'Scan friends QR code to establish a connection and start texting!',
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.all(8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(32),
+                  child: MobileScanner(
+                    onDetect: _onDetect,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Text(
+                'Point your camera at a QR code',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
