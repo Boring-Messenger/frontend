@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// QR-only flow; no direct service usage here
 
 class NewChatScreen extends StatefulWidget {
   const NewChatScreen({super.key});
@@ -15,32 +14,10 @@ class _NewChatScreenState extends State<NewChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: SafeArea(
-          child: Container(
-            margin: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      'New Chat',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+      appBar: AppBar(
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text('New Chat'),
         ),
       ),
       body: Padding(
@@ -48,6 +25,19 @@ class _NewChatScreenState extends State<NewChatScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const Text(
+              'QR to Connect',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Use a QR code to connect instantly with someone nearby.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+            ),
+            const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -59,15 +49,12 @@ class _NewChatScreenState extends State<NewChatScreen> {
                 const SizedBox(width: 16),
                 _SquareButton(
                   icon: Icons.qr_code,
-                  label: 'My QR',
+                  label: 'Show QR',
                   onTap: () => Navigator.pushNamed(context, '/qr_code'),
                 ),
               ],
             ),
             const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 12),
-            Text('Use QR to connect', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
       ),
@@ -86,11 +73,9 @@ class _SquareButton extends StatelessWidget {
     return SizedBox(
       width: 140,
       height: 140,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+      child: FilledButton(
+        style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
           padding: EdgeInsets.zero,
         ),
         onPressed: onTap,
@@ -99,7 +84,11 @@ class _SquareButton extends StatelessWidget {
           children: [
             Icon(icon, size: 40),
             const SizedBox(height: 12),
-            Text(label, textAlign: TextAlign.center),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontFamily: 'Hepta Slab'),
+            ),
           ],
         ),
       ),
