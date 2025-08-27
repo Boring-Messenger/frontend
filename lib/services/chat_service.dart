@@ -177,4 +177,98 @@ class ChatService {
     batch.delete('chat_rooms', where: 'room_id = ?', whereArgs: [roomId]);
     await batch.commit(noResult: true);
   }
+
+  // Resync: read users/<uid>/rooms index, fetch each room info and upsert locally
+  Future<void> resyncForUser(String userId, {int pullLastNMessages = 30}) async {
+    final roomsMap = await _firebase.getUserRooms(userId);
+    if (roomsMap.isEmpty) return;
+
+    final db = await LocalDbService().database;
+    final batch = db.batch();
+
+    for (final entry in roomsMap.entries) {
+      final roomId = entry.key;
+      final meta = (entry.value is Map) ? Map<String, dynamic>.from(entry.value) : <String, dynamic>{};
+      final status = meta['status']?.toString() ?? 'active';
+      final leftAt = int.tryParse(meta['leftAt']?.toString() ?? '');
+      final roomSnap = await _firebase.getChatRoom(roomId);
+      if (!roomSnap.exists) continue;
+  final data = roomSnap.value;
+  if (data is! Map) continue;
+  final map = Map<String, dynamic>.from(data);
+      final participants = (map['participants'] is Map) ? Map<String, dynamic>.from(map['participants']) : <String, dynamic>{};
+      final lastMessage = map['last_message']?.toString();
+      final lastUpdated = int.tryParse(map['last_updated']?.toString() ?? '');
+
+      // Skip rediscovery if user marked inactive and there's no newer activity than leftAt
+      if (status == 'inactive' && leftAt != null && lastUpdated != null && lastUpdated <= leftAt) {
+        continue;
+      }
+
+      // Determine the other user (first participant not equal to me)
+      String? otherUserId;
+      String? otherUsername;
+      participants.forEach((pid, pval) {
+        if (pid != userId && otherUserId == null) {
+          otherUserId = pid;
+          if (pval is Map) {
+            otherUsername = (pval['username'] ?? '').toString();
+          }
+        }
+      });
+
+      // Upsert contact and chat_room locally
+      if (otherUserId != null) {
+        batch.insert(
+          'contacts',
+          Contact(contactId: otherUserId!, username: otherUsername ?? otherUserId!).toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+      batch.insert(
+        'chat_rooms',
+        ChatRoom(
+          roomId: roomId,
+          contactId: otherUserId,
+          lastMessage: lastMessage,
+          lastUpdated: lastUpdated,
+        ).toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      // Optionally pull last N messages
+      if (pullLastNMessages > 0) {
+        try {
+          final msgsSnap = await _firebase.getRecentMessages(roomId, limit: pullLastNMessages);
+          final val = msgsSnap.value;
+          if (val is Map) {
+            final msgs = val.values.whereType<Map>();
+            for (final m in msgs) {
+              final map = Map<String, dynamic>.from(m);
+              final msg = ChatMessage(
+                messageId: (map['message_id'] ?? _uuid.v4()).toString(),
+                roomId: roomId,
+                senderId: map['sender_id']?.toString() ?? '',
+                content: map['content']?.toString() ?? '',
+                timestamp: int.tryParse(map['timestamp']?.toString() ?? '') ?? 0,
+              );
+              batch.insert('messages', msg.toMap(), conflictAlgorithm: ConflictAlgorithm.ignore);
+            }
+          }
+        } catch (_) {
+          // Ignore missing index errors; app will still function with streaming
+        }
+      }
+
+      // Clear has_new flag since we processed the room locally
+      try {
+        await _firebase.clearHasNew(userId, roomId);
+      } catch (_) {}
+    }
+
+    await batch.commit(noResult: true);
+  }
+
+  // Listen to per-user rooms index changes
+  Stream<DatabaseEvent> userRoomsStream(String userId) => _firebase.userRoomsStream(userId);
 }

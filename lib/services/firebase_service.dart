@@ -12,7 +12,8 @@ class FirebaseService {
 
   // Create or update a user profile
   Future<void> setUserProfile(String userId, Map<String, dynamic> profile) async {
-    await _db.child('users/$userId').set(profile);
+    // Use update so we don't wipe out the per-user rooms index
+    await _db.child('users/$userId').update(profile);
   }
 
   // Get a user profile
@@ -22,7 +23,8 @@ class FirebaseService {
 
   // Create or join a chat room
   Future<void> createOrJoinChatRoom(String roomId, String userId, Map<String, dynamic> profile) async {
-    await _db.child('chat_rooms/$roomId/participants/$userId').set(profile);
+  await _db.child('chat_rooms/$roomId/participants/$userId').set(profile);
+  await _db.child('users/$userId/rooms/$roomId').set(true);
   }
 
   // Transactionally create or get a room for a pair key; returns the roomId
@@ -50,11 +52,20 @@ class FirebaseService {
 
   Future<void> setParticipant(String roomId, String userId, Map<String, dynamic> profile) async {
     await _db.child('chat_rooms/$roomId/participants/$userId').update(profile);
+    // Maintain per-user room index for quick discovery with metadata
+    await _db.child('users/$userId/rooms/$roomId').update({
+      'status': (profile['active'] == false) ? 'inactive' : 'active',
+    });
   }
 
   Future<void> leaveRoom(String roomId, String userId) async {
     await _db.child('chat_rooms/$roomId/participants/$userId').update({
       'active': false,
+      'leftAt': ServerValue.timestamp,
+    });
+    // Keep per-user room index with inactive status to enable auto-rediscovery
+    await _db.child('users/$userId/rooms/$roomId').update({
+      'status': 'inactive',
       'leftAt': ServerValue.timestamp,
     });
   }
@@ -70,6 +81,23 @@ class FirebaseService {
       'last_message': message['content'],
       'last_updated': message['timestamp'],
     });
+    // Update per-user room indexes so receivers can auto-rediscover
+    try {
+      final participantsSnap = await _db.child('chat_rooms/$roomId/participants').get();
+      if (participantsSnap.exists && participantsSnap.value is Map) {
+        final participants = Map<String, dynamic>.from(participantsSnap.value as Map);
+        final ts = message['timestamp'];
+        final senderId = message['sender_id']?.toString();
+        for (final entry in participants.entries) {
+          final uid = entry.key;
+          await _db.child('users/$uid/rooms/$roomId').update({
+            'last_updated': ts,
+            if (senderId != null) 'last_sender': senderId,
+            if (senderId != null && uid != senderId) 'has_new': true,
+          });
+        }
+      }
+    } catch (_) {}
   }
 
   // Listen for messages in a chat room
@@ -80,5 +108,41 @@ class FirebaseService {
   // Get chat room info
   Future<DataSnapshot> getChatRoom(String roomId) async {
     return await _db.child('chat_rooms/$roomId').get();
+  }
+
+  // List room ids for a user from the per-user index
+  Future<List<String>> getUserRoomIds(String userId) async {
+    final snap = await _db.child('users/$userId/rooms').get();
+    if (!snap.exists) return const [];
+    final val = snap.value;
+    if (val is Map) {
+      return val.keys.map((e) => e.toString()).toList();
+    }
+    return const [];
+  }
+
+  // Get the full per-user rooms map (roomId -> metadata)
+  Future<Map<String, dynamic>> getUserRooms(String userId) async {
+    final snap = await _db.child('users/$userId/rooms').get();
+    if (!snap.exists || snap.value is! Map) return <String, dynamic>{};
+    return Map<String, dynamic>.from(snap.value as Map);
+  }
+
+  // Fetch recent N messages for a room
+  Future<DataSnapshot> getRecentMessages(String roomId, {int limit = 50}) async {
+    return await _db
+        .child('chat_rooms/$roomId/messages')
+        .orderByChild('timestamp')
+        .limitToLast(limit)
+        .get();
+  }
+
+  // Stream that emits whenever the per-user rooms index changes
+  Stream<DatabaseEvent> userRoomsStream(String userId) {
+    return _db.child('users/$userId/rooms').onValue;
+  }
+
+  Future<void> clearHasNew(String userId, String roomId) async {
+    await _db.child('users/$userId/rooms/$roomId/has_new').remove();
   }
 }

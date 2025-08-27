@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import '../models/chat_room.dart';
 import '../services/chat_service.dart';
 import 'chat_screen.dart';
@@ -14,23 +15,43 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List<ChatRoom> _rooms = const [];
   bool _loading = true;
+  StreamSubscription? _roomsSub;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _load();
+  _resyncAndLoad();
+  _startRoomsListener();
   }
 
   @override
   void dispose() {
+  _roomsSub?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _load();
+    if (state == AppLifecycleState.resumed) {
+      _resyncAndLoad();
+    }
+  }
+
+  Future<void> _resyncAndLoad() async {
+    final myUserId = await ProfileService().getOrCreateUserId();
+    await ChatService().resyncForUser(myUserId);
+    await _load();
+  }
+
+  Future<void> _startRoomsListener() async {
+    final myUserId = await ProfileService().getOrCreateUserId();
+    _roomsSub?.cancel();
+    _roomsSub = ChatService().userRoomsStream(myUserId).listen((_) {
+      if (!mounted) return;
+      _resyncAndLoad();
+    });
   }
 
   Future<void> _load() async {
@@ -87,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: _load,
+              onRefresh: _resyncAndLoad,
               child: ListView.builder(
                 itemCount: _rooms.length,
                 itemBuilder: (context, index) {
@@ -128,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         onPressed: () async {
           await Navigator.pushNamed(context, '/new_chat');
           if (!mounted) return;
-          _load();
+          _resyncAndLoad();
         },
         tooltip: 'Start New Chat',
         child: const Icon(Icons.add),
