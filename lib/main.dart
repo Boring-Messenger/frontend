@@ -9,6 +9,7 @@ import 'screens/qr_scanner_screen.dart';
 import 'screens/profile_setup_screen.dart';
 import 'screens/settings_screen.dart';
 import 'services/profile_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,6 +52,8 @@ class MyApp extends StatelessWidget {
   return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+  // Use Hepta Slab as the default app font via Google Fonts
+  textTheme: GoogleFonts.heptaSlabTextTheme(),
         // This is the theme of your application.
         //
         // TRY THIS: Try running your application with "flutter run". You'll see
