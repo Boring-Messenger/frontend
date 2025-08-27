@@ -89,7 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         margin: const EdgeInsets.symmetric(vertical: 4),
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         constraints: BoxConstraints(
-                          minWidth: 96,
+                          minWidth: 32,
                           maxWidth: MediaQuery.of(context).size.width * 0.75,
                         ),
                         decoration: BoxDecoration(
@@ -97,16 +97,24 @@ class _ChatScreenState extends State<ChatScreen> {
                           borderRadius: BorderRadius.circular(32),
                         ),
                         child: Column(
-                          crossAxisAlignment: mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(m.content, style: TextStyle(color: textColor)),
-                            const SizedBox(height: 2),
                             Text(
-                              DateTime.fromMillisecondsSinceEpoch(m.timestamp).toLocal().toString().substring(11, 16),
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: textColor.withOpacity(0.9),
-                                    fontWeight: FontWeight.w300,
-                                  ),
+                              m.content,
+                              textAlign: TextAlign.left,
+                              style: TextStyle(color: textColor),
+                            ),
+                            const SizedBox(height: 2),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                DateTime.fromMillisecondsSinceEpoch(m.timestamp).toLocal().toString().substring(11, 16),
+                                textAlign: TextAlign.right,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: textColor.withOpacity(0.9),
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                              ),
                             ),
                           ],
                         ),
@@ -132,6 +140,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
                     onPressed: _send,
                     child: const Icon(Icons.send),
                   ),
