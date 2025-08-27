@@ -64,7 +64,10 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-  appBar: AppBar(title: Text(_title ?? '...')),
+      appBar: AppBar(
+        centerTitle: false,
+        title: Text(_title ?? '...'),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -78,23 +81,32 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) {
                     final m = messages[index];
                     final mine = m.senderId == _userId;
+                    final bubbleColor = mine ? Colors.blue : Colors.lightBlueAccent;
+                    final textColor = mine ? Colors.white : Colors.black87;
                     return Align(
                       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        constraints: BoxConstraints(
+                          minWidth: 96,
+                          maxWidth: MediaQuery.of(context).size.width * 0.75,
+                        ),
                         decoration: BoxDecoration(
-                          color: mine ? Colors.blue[200] : Colors.grey[300],
-                          borderRadius: BorderRadius.circular(12),
+                          color: bubbleColor,
+                          borderRadius: BorderRadius.circular(32),
                         ),
                         child: Column(
                           crossAxisAlignment: mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                           children: [
-                            Text(m.content),
-                            const SizedBox(height: 4),
+                            Text(m.content, style: TextStyle(color: textColor)),
+                            const SizedBox(height: 2),
                             Text(
                               DateTime.fromMillisecondsSinceEpoch(m.timestamp).toLocal().toString().substring(11, 16),
-                              style: Theme.of(context).textTheme.bodySmall,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: textColor.withOpacity(0.9),
+                                    fontWeight: FontWeight.w300,
+                                  ),
                             ),
                           ],
                         ),
@@ -115,14 +127,13 @@ class _ChatScreenState extends State<ChatScreen> {
                       controller: _msgCtrl,
                       decoration: const InputDecoration(
                         hintText: 'Type a message',
-                        border: OutlineInputBorder(),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.send),
+                  FilledButton(
                     onPressed: _send,
+                    child: const Icon(Icons.send),
                   ),
                 ],
               ),
