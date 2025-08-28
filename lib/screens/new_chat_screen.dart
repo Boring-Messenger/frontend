@@ -87,7 +87,6 @@ class _SquareButton extends StatelessWidget {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontFamily: 'Hepta Slab'),
             ),
           ],
         ),

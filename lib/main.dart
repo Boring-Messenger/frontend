@@ -72,6 +72,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData(
         useMaterial3: true,
+  fontFamily: GoogleFonts.heptaSlab().fontFamily,
         colorScheme: scheme,
         scaffoldBackgroundColor: darkBg,
         textTheme: GoogleFonts.heptaSlabTextTheme(ThemeData.dark().textTheme),
@@ -120,7 +121,6 @@ class MyApp extends StatelessWidget {
             backgroundColor: primary,
             foregroundColor: Colors.black,
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            textStyle: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
         filledButtonTheme: FilledButtonThemeData(
@@ -129,7 +129,6 @@ class MyApp extends StatelessWidget {
             backgroundColor: primary,
             foregroundColor: Colors.black,
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            textStyle: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -138,7 +137,6 @@ class MyApp extends StatelessWidget {
             side: BorderSide(color: primary),
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             foregroundColor: primary,
-            textStyle: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
         textButtonTheme: TextButtonThemeData(

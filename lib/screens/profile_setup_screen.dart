@@ -46,14 +46,24 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
   return Scaffold(
-      appBar: AppBar(title: const Text('Profile Setup')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Create your profile'),
-            const SizedBox(height: 12),
+            const Text(
+              'Welcome User',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Welcome to Boring Messenger, where conversations are thrillingly ordinary. To get started, enter a username and say hello to predictably pleasant chats.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+            ),
+            const SizedBox(height: 32),
             Form(
               key: _formKey,
               child: TextFormField(
