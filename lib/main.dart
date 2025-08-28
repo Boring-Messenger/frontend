@@ -18,7 +18,6 @@ void main() async {
       try {
         await init();
       } on FirebaseException catch (e) {
-        // Ignore duplicate-app on hot restart or if native already initialized
         if (e.code != 'duplicate-app') rethrow;
       } on PlatformException catch (e) {
         if (e.code != 'duplicate-app') rethrow;
@@ -33,11 +32,9 @@ void main() async {
             options: DefaultFirebaseOptions.currentPlatform,
           ));
     } on UnsupportedError {
-      // Fallback for platforms without configured options (e.g., linux)
       await tryInit(() => Firebase.initializeApp());
     }
   }
-  // Decide start screen based on presence of local profile
   final hasProfile = await ProfileService().loadLocalProfile() != null;
   runApp(MyApp(startOnProfileSetup: !hasProfile));
 }
@@ -46,12 +43,11 @@ class MyApp extends StatelessWidget {
   final bool startOnProfileSetup;
   const MyApp({super.key, this.startOnProfileSetup = false});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final darkBg = const Color(0xFF0A0F1A); // very blackish dark blue
+    final darkBg = const Color(0xFF0A0F1A);
     final darkCard = const Color(0xFF0E1624);
-    final primary = const Color(0xFF90CAF9); // light blue accent
+    final primary = const Color(0xFF90CAF9); 
     final secondary = const Color(0xFF64B5F6);
     final scheme = ColorScheme.dark(
       primary: primary,
@@ -77,7 +73,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: darkBg,
         textTheme: GoogleFonts.heptaSlabTextTheme(ThemeData.dark().textTheme),
         appBarTheme: AppBarTheme(
-          backgroundColor: darkCard,
+          backgroundColor: darkBg,
           foregroundColor: scheme.onSurface,
           elevation: 0,
           centerTitle: true,
@@ -171,4 +167,3 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ...existing code...

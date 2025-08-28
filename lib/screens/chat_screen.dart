@@ -82,41 +82,45 @@ class _ChatScreenState extends State<ChatScreen> {
                     final m = messages[index];
                     final mine = m.senderId == _userId;
                     final bubbleColor = mine ? Colors.blue : Colors.lightBlueAccent;
-                    final textColor = mine ? Colors.white : Colors.black87;
+                    final textColor = mine ? Colors.black : Colors.black87;
                     return Align(
                       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      child: ConstrainedBox(
                         constraints: BoxConstraints(
                           minWidth: 32,
                           maxWidth: MediaQuery.of(context).size.width * 0.75,
                         ),
-                        decoration: BoxDecoration(
-                          color: bubbleColor,
-                          borderRadius: BorderRadius.circular(32),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              m.content,
-                              textAlign: TextAlign.left,
-                              style: TextStyle(color: textColor),
+                        child: IntrinsicWidth(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: bubbleColor,
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            const SizedBox(height: 2),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                DateTime.fromMillisecondsSinceEpoch(m.timestamp).toLocal().toString().substring(11, 16),
-                                textAlign: TextAlign.right,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: textColor.withOpacity(0.9),
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  m.content,
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(color: textColor),
+                                ),
+                                const SizedBox(height: 2),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    DateTime.fromMillisecondsSinceEpoch(m.timestamp).toLocal().toString().substring(11, 16),
+                                    textAlign: TextAlign.right,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: textColor.withOpacity(0.9),
+                                          fontWeight: FontWeight.w300,
+                                        ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     );

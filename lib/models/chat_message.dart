@@ -1,9 +1,9 @@
 class ChatMessage {
-  final String messageId; // client-generated UUID
+  final String messageId; 
   final String roomId;
   final String senderId;
   final String content;
-  final int timestamp; // ms since epoch
+  final int timestamp; 
 
   ChatMessage({
     required this.messageId,

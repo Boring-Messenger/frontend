@@ -1,8 +1,7 @@
 class UserProfile {
   final String userId;
   final String username;
-  // Keep room for picture later; use nullable path for now
-  final String? profilePicturePath;
+  final String? profilePicturePath; // Implement eventually > < 
 
   const UserProfile({
     required this.userId,

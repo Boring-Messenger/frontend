@@ -38,19 +38,16 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
 
   void _startPollingForActivation() async {
     final myUserId = await ProfileService().getOrCreateUserId();
-    // Seed known rooms from local DB
     final existing = await ChatService().recentRooms();
     _knownRoomIds = existing.map((e) => e.roomId).toSet();
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(const Duration(seconds: 2), (t) async {
-      // Resync will pull newly activated rooms based on per-user index
       await ChatService().resyncForUser(myUserId, pullLastNMessages: 10);
       final rooms = await ChatService().recentRooms();
       for (final r in rooms) {
         if (!_knownRoomIds.contains(r.roomId)) {
           _knownRoomIds.add(r.roomId);
           if (!mounted) return;
-          // Navigate into the newly activated chat
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => ChatScreen(roomId: r.roomId)),
           );

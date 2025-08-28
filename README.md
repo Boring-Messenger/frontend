@@ -1,16 +1,27 @@
-# messager
+# Boring Messenger
 
-A new Flutter project.
+Simple QR-based chat. Scan a friend’s code or show yours to start a private conversation instantly.
 
-## Getting Started
+## What it does
+- Profile setup on first launch (pick a username)
+- Home shows recent chats (swipe to delete locally)
+- New Chat lets you Scan QR or Show QR
+- Chat screen with message bubbles, live updates, and local history
+- Settings to change your username
 
-This project is a starting point for a Flutter application.
+## How to use (customer)
+1) Open the app and set your username.
+2) To start a chat, either:
+	- Show QR: your friend scans it, or
+	- Scan QR: point your camera at your friend’s QR.
+3) Start messaging. Your conversations appear on the Home screen.
+4) Change your username anytime in Settings.
 
-A few resources to get you started if this is your first Flutter project:
+## Start as a developer
+Prereqs: Flutter SDK, Android SDK/device, Firebase config (google-services.json) for Android.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+cd messager
+flutter pub get
+flutter run
+```

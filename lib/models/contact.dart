@@ -1,5 +1,5 @@
 class Contact {
-  final String contactId; // other user's userId
+  final String contactId; 
   final String username;
   final String? profilePicture;
 

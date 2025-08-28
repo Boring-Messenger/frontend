@@ -1,6 +1,6 @@
 class ChatRoom {
   final String roomId;
-  final String? contactId; // optional for future
+  final String? contactId;
   final String? lastMessage;
   final int? lastUpdated;
 

@@ -23,18 +23,15 @@ class ChatService {
     return '${list[0]}:${list[1]}';
   }
 
-  // Create or join a room and store locally for home listing
   Future<void> createOrJoinRoom({
     required String roomId,
     required String userId,
     required String username,
   }) async {
-    // Remote: register as participant
     await _firebase.createOrJoinChatRoom(roomId, userId, {
       'username': username,
     });
 
-    // Local: upsert chat_rooms
     final db = await LocalDbService().database;
     await db.insert(
       'chat_rooms',
@@ -43,7 +40,7 @@ class ChatService {
     );
   }
 
-  // Create or get a unique room for two users by userId
+
   Future<String> createOrGetRoomByUserId({
     required String myUserId,
     required String myUsername,
@@ -55,7 +52,6 @@ class ChatService {
       'username': myUsername,
       'active': true,
     });
-    // Register participants
     await _firebase.setParticipant(roomId, myUserId, {
       'username': myUsername,
       'active': true,
@@ -65,7 +61,6 @@ class ChatService {
       'active': true,
     });
 
-    // Local upserts
     final db = await LocalDbService().database;
     await db.insert('contacts', Contact(contactId: otherUserId, username: otherUsername).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
@@ -89,7 +84,6 @@ class ChatService {
       timestamp: ts,
     );
 
-    // Write to remote first; in a more robust setup you'd do local-first w/ outbox
     await _firebase.sendMessage(roomId, {
       'message_id': messageId,
       'sender_id': userId,
@@ -97,7 +91,6 @@ class ChatService {
       'timestamp': ts,
     });
 
-    // Upsert local message and update chat room
     final db = await LocalDbService().database;
     await db.insert('messages', msg.toMap(), conflictAlgorithm: ConflictAlgorithm.ignore);
     await db.insert(
@@ -107,10 +100,7 @@ class ChatService {
     );
   }
 
-  // Stream messages by listening to Firebase and mirroring into SQLite;
-  // return a local stream from polling SQLite for simplicity (no advanced change listeners in sqflite).
   Stream<List<ChatMessage>> messageStream(String roomId) {
-    // Start Firebase listener that mirrors to local DB
     _firebase.messageStream(roomId).listen((DatabaseEvent event) async {
       final data = event.snapshot.value;
       if (data is Map) {
@@ -132,7 +122,6 @@ class ChatService {
       }
     });
 
-    // Poll local DB every 500ms for simplicity
     final dbFuture = LocalDbService().database;
     return Stream.periodic(const Duration(milliseconds: 500)).asyncMap((_) async {
       final db = await dbFuture;
@@ -178,7 +167,6 @@ class ChatService {
     await batch.commit(noResult: true);
   }
 
-  // Resync: read users/<uid>/rooms index, fetch each room info and upsert locally
   Future<void> resyncForUser(String userId, {int pullLastNMessages = 30}) async {
     final roomsMap = await _firebase.getUserRooms(userId);
     if (roomsMap.isEmpty) return;
@@ -200,12 +188,10 @@ class ChatService {
       final lastMessage = map['last_message']?.toString();
       final lastUpdated = int.tryParse(map['last_updated']?.toString() ?? '');
 
-      // Skip rediscovery if user marked inactive and there's no newer activity than leftAt
       if (status == 'inactive' && leftAt != null && lastUpdated != null && lastUpdated <= leftAt) {
         continue;
       }
 
-      // Determine the other user (first participant not equal to me)
       String? otherUserId;
       String? otherUsername;
       participants.forEach((pid, pval) {
@@ -217,7 +203,6 @@ class ChatService {
         }
       });
 
-      // Upsert contact and chat_room locally
       if (otherUserId != null) {
         batch.insert(
           'contacts',
@@ -236,7 +221,6 @@ class ChatService {
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
 
-      // Optionally pull last N messages
       if (pullLastNMessages > 0) {
         try {
           final msgsSnap = await _firebase.getRecentMessages(roomId, limit: pullLastNMessages);
@@ -256,19 +240,20 @@ class ChatService {
             }
           }
         } catch (_) {
-          // Ignore missing index errors; app will still function with streaming
+          // Implement error catching
         }
       }
 
-      // Clear has_new flag since we processed the room locally
+
       try {
         await _firebase.clearHasNew(userId, roomId);
-      } catch (_) {}
+      } catch (_) {
+        // Implement error catching...
+      }
     }
 
     await batch.commit(noResult: true);
   }
 
-  // Listen to per-user rooms index changes
   Stream<DatabaseEvent> userRoomsStream(String userId) => _firebase.userRoomsStream(userId);
 }

@@ -137,11 +137,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
           confirmDismiss: (_) async {
             await _deleteRoom(r);
-            return false; // handled manually
+            return false; 
           },
           child: Card(
             elevation: 0,
-            // Use themed 32px radius; border comes from theme divider
             margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
             child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

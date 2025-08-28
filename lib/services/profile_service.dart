@@ -38,11 +38,10 @@ class ProfileService {
       profile.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    // Best-effort remote sync; swallow errors for now
     try {
       await _firebase.setUserProfile(profile.userId, profile.toFirebaseJson());
     } catch (_) {
-      // You can add retry logic later
+      // Add retry logic??
     }
   }
 }

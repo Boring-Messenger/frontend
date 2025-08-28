@@ -9,8 +9,6 @@ class NewChatScreen extends StatefulWidget {
 
 class _NewChatScreenState extends State<NewChatScreen> {
 
-  // Manual flows removed; QR is now the only new-chat option
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
